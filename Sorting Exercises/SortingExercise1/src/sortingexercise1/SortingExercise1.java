@@ -38,10 +38,9 @@ public class SortingExercise1 {
     }
     
     public static void selectionSort(ArrayList<Integer> a) {
-        int indexSmall;
-        //go through every index from right to left
-        for (int i = 0; i < a.size(); i++) {
-            //find the smallest remaining one, ignor the first element as it is already sorted
+        //go through every index from right to left, ignor the last one as it will just end up as being the largest
+        for (int i = 0; i < a.size() - 1; i++) {
+            //find the smallest remaining one, start after what is already sorted (at the left/begining)
             for (int j = i + 1; j < a.size(); j++) {
                 if (a.get(i) > a.get(j)) {
                     swap(a, j, i);
