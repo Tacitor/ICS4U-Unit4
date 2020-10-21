@@ -23,24 +23,35 @@ public class SortingExercise1 {
         // TODO code application logic here
         ArrayList<Integer> numbers = loadFile();
         
+        /*
         System.out.println("Unsorted:");
         for (Integer num: numbers) {
             System.out.println(num);
         }
+        */
         
         System.out.println("Sorted:");
         selectionSort(numbers);
+        for (Integer num: numbers) {
+            System.out.println(num);
+        }
     }
     
     public static void selectionSort(ArrayList<Integer> a) {
         int indexSmall;
-        //test every inxex
+        //go through every index from right to left
         for (int i = 0; i < a.size(); i++) {
-            //find the smallest one, ignor the first element as it is already 
-            for (int j = 1; j < a.size(); j++) {
-                
+            //find the smallest remaining one, ignor the first element as it is already sorted
+            for (int j = i + 1; j < a.size(); j++) {
+                if (a.get(i) > a.get(j)) {
+                    swap(a, j, i);
+                }
             }
         }
+    }
+    
+    public static void swap(ArrayList<Integer> a, int n, int m) {
+        a.set(m, a.set(n, a.get(m)));
     }
     
     protected static ArrayList<Integer> loadFile() {
