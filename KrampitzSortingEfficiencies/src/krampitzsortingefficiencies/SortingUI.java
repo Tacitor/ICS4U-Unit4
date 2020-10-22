@@ -21,12 +21,23 @@ public class SortingUI extends javax.swing.JFrame {
     private static int numSort;
     private static int sortType;
     private static boolean ascendSort;
+
     private final static String ADR10 = "src\\krampitzsortingefficiencies\\10nums.txt";
     private final static String ADR10000 = "src\\krampitzsortingefficiencies\\10000nums.txt";
     private static String adr;
+
     private static int[] numsBubble;
     private static int[] numsQuik;
+
     private static int tempInt;
+    private static int timesLooped = 0;
+    private static long timeStart;
+    private static long timeFin;
+    private static long timeDuration;
+    private static String stats = "";
+    private static String errorMsg;
+    private static final String LOOP_STRING = "\nNumber of times a loop was executed: ";
+    private static final String TIME_STRING = "\nNumber of miliseconds to complete sort: ";
 
     /**
      * Creates new form SortingUI
@@ -166,9 +177,11 @@ public class SortingUI extends javax.swing.JFrame {
                         .addComponent(sortTypeBox, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 294, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(sortResultLbl))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(sortResultLbl)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE))
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -211,7 +224,7 @@ public class SortingUI extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -223,6 +236,9 @@ public class SortingUI extends javax.swing.JFrame {
 
     private void SortBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SortBtnActionPerformed
         // TODO add your handling code here:
+        //clear the stats
+        stats = "";
+
         //get all the sorting type data
         getInput();
 
@@ -236,27 +252,58 @@ public class SortingUI extends javax.swing.JFrame {
 
         //System.out.println(numsBubble); //debug array
         //add the original unsorted arrays
-        displayNums(numsBubble, originalNumTxt);
+        displayNums(numsBubble, originalNumTxt, "");
 
-        //sort both arrays
-        bubbleSort(numsBubble);
-        quikSort(numsQuik, 0, numsQuik.length - 1);
+        if (ascendSort) {
+            //sort both arrays and store preformace values
+            timesLooped = 0; //reset times looped
+            timeStart = System.currentTimeMillis();
+            bubbleSort(numsBubble);
+            timeFin = System.currentTimeMillis();
+            timeDuration = timeFin - timeStart;
+            stats += "Bubble Sort:" + LOOP_STRING + timesLooped + TIME_STRING + timeDuration;
 
-        //check for parity
-        if (Arrays.equals(numsBubble, numsQuik)) {
-
-            //add the sorted array to the display. even though they should be the same only add the one from the selected algorythm
-            if (sortType == 1) {
-                displayNums(numsBubble, sortedNumTxt);
-            } else if (sortType == 3) {
-                displayNums(numsQuik, sortedNumTxt);
-            }
-
+            //reset times looped
+            timesLooped = 0;
+            timeStart = System.currentTimeMillis();
+            quikSort(numsQuik, 0, numsQuik.length - 1);
+            timeFin = System.currentTimeMillis();
+            timeDuration = timeFin - timeStart;
+            stats += "\nQuik Sort:" + LOOP_STRING + timesLooped + TIME_STRING + timeDuration;
         } else {
-            sortResultTxt.setText("An array parity error has ocoured. Please contact tech support to resolve this issue.");
-            sortedNumTxt.setText("An array parity error has ocoured. Please contact tech support to resolve this issue.");
+            //sort both arrays and store preformace values
+            timesLooped = 0; //reset times looped
+            timeStart = System.currentTimeMillis();
+            bubbleSortDec(numsBubble);
+            timeFin = System.currentTimeMillis();
+            timeDuration = timeFin - timeStart;
+            stats += "Bubble Sort:" + LOOP_STRING + timesLooped + TIME_STRING + timeDuration;
+
+            //reset times looped
+            timesLooped = 0;
+            timeStart = System.currentTimeMillis();
+            quikSortDec(numsQuik, 0, numsQuik.length - 1);
+            timeFin = System.currentTimeMillis();
+            timeDuration = timeFin - timeStart;
+            stats += "\nQuik Sort:" + LOOP_STRING + timesLooped + TIME_STRING + timeDuration;
         }
 
+        //check for parity
+        if (!Arrays.equals(numsBubble, numsQuik)) {
+            errorMsg = "Global parity error";
+        } else {
+            errorMsg = "Global parity true";
+        }
+
+        //add the sorted array to the display. even though they should be the same only add the one from the selected algorythm
+        if (sortType == 1) {
+            displayNums(numsBubble, sortedNumTxt, errorMsg);
+        } else if (sortType == 3) {
+            displayNums(numsQuik, sortedNumTxt, errorMsg);
+        }
+
+        //display stats
+        sortResultTxt.setText(stats);
 
     }//GEN-LAST:event_SortBtnActionPerformed
 
@@ -295,13 +342,13 @@ public class SortingUI extends javax.swing.JFrame {
         });
     }
 
-    public void displayNums(int[] a, JTextArea txt) {
+    public void displayNums(int[] a, JTextArea txt, String msg) {
         txt.setText("loading...");
         String txtStr = "";
         for (int i = 0; i < a.length; i++) {
             txtStr += i + ": " + a[i] + "\n";
         }
-        txt.setText(txtStr);
+        txt.setText(txtStr + msg);
     }
 
     public static void quikSort(int[] a, int left, int right) {
@@ -314,9 +361,39 @@ public class SortingUI extends javax.swing.JFrame {
         while (i < j) {
             while (a[i] < pivot) {
                 i++;
+                timesLooped++;
             }
             while (a[j] > pivot) {
                 j--;
+                timesLooped++;
+            }
+            if (i <= j) {
+                int temp = a[i];
+                a[i] = a[j];
+                a[j] = temp;
+                i++;
+                j--;
+            }
+        }
+        quikSort(a, left, j);
+        quikSort(a, i, right);
+    }
+    
+    public static void quikSortDec(int[] a, int left, int right) {
+        if (left >= right) {
+            return;
+        }
+        int pivot = a[(left + right) / 2];
+        int i = left;
+        int j = right;
+        while (i < j) {
+            while (a[i] < pivot) {
+                i++;
+                timesLooped++;
+            }
+            while (a[j] > pivot) {
+                j--;
+                timesLooped++;
             }
             if (i <= j) {
                 int temp = a[i];
@@ -349,6 +426,7 @@ public class SortingUI extends javax.swing.JFrame {
         while (swch) {
             swch = false;
             for (int j = 0; j < bottom; j++) {
+                timesLooped++;
                 if (a[j] > (a[j + 1])) { //check if it need to moded down
                     //move it down
                     tempInt = a[j + 1];
@@ -359,6 +437,27 @@ public class SortingUI extends javax.swing.JFrame {
                 }
             }
             //we have now just added the next biggest value to the back, no need to check that anymore
+            bottom--;
+        }
+    }
+
+    public static void bubbleSortDec(int[] a) {
+        int bottom = a.length - 1; //the bottom is the last value/highest index
+        boolean swch = true; //have any values been swaped yet/are we done sorting?
+        while (swch) {
+            swch = false;
+            for (int j = 0; j < bottom; j++) {
+                timesLooped++;
+                if (a[j] < (a[j + 1])) { //check if it need to moved down
+                    //move it down
+                    tempInt = a[j + 1];
+                    a[j + 1] = a[j];
+                    a[j] = tempInt;
+                    //note a switch
+                    swch = true;
+                }
+            }
+            //we have now just added the next SMALLEST value to the back, no need to check that anymore
             bottom--;
         }
     }
