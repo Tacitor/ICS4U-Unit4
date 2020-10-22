@@ -278,7 +278,7 @@ public class SortingUI extends javax.swing.JFrame {
             timeFin = System.currentTimeMillis();
             timeDuration = timeFin - timeStart;
             stats += "Bubble Sort:" + LOOP_STRING + timesLooped + TIME_STRING + timeDuration;
-
+            
             //reset times looped
             timesLooped = 0;
             timeStart = System.currentTimeMillis();
@@ -387,11 +387,11 @@ public class SortingUI extends javax.swing.JFrame {
         int i = left;
         int j = right;
         while (i < j) {
-            while (a[i] < pivot) {
+            while (a[i] > pivot) {
                 i++;
                 timesLooped++;
             }
-            while (a[j] > pivot) {
+            while (a[j] < pivot) {
                 j--;
                 timesLooped++;
             }
@@ -403,8 +403,8 @@ public class SortingUI extends javax.swing.JFrame {
                 j--;
             }
         }
-        quikSort(a, left, j);
-        quikSort(a, i, right);
+        quikSortDec(a, left, j);
+        quikSortDec(a, i, right);
     }
 
     public static void insertionSort(ArrayList<Integer> a) {
