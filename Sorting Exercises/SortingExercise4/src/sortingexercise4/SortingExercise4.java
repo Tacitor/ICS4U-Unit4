@@ -1,7 +1,7 @@
 /*
  * Lukas Krampiz
  * Oct 21, 2020
- * 
+ * Quik Sort
  */
 package sortingexercise4;
 
@@ -23,29 +23,33 @@ public class SortingExercise4 {
         // TODO code application logic here
         ArrayList<Integer> nums = loadFile();
         
-        quikSort(nums);
+        quikSort(nums, 0, nums.size() - 1);
         
         for(Integer i : nums) {
             System.out.println(i);
         }
     }
     
-    public static void quikSort(ArrayList<Integer> a) {
-        int temp;
-        int pivot = (int)(Math.random() * a.size()); //pick a rand point
-        System.out.println("oaysudfgkajsdgfkasjvfjvasdhkgfv " + pivot);
-        //reagrange the values based on the pivot
-        for (int i = 0; i < a.size(); i++) {
-            //put all the smaller ones on the left, leave the bigger ones where they are
-            if (a.get(pivot) > a.get(i)) {
-                //store it
-                temp = a.get(i);
-                //delete it
-                a.remove(i);
-                //put it on the correct side
-                a.add(pivot - 1, temp);
+    public static void quikSort(ArrayList<Integer> a, int left, int right) {
+        if (left >= right) {
+            return;
+        }
+        int pivot = a.get((left + right) / 2);
+        int i = left;
+        int j = right;
+        while (i < j) {
+            while (a.get(i) < pivot) i++;
+            while (a.get(j) > pivot) j--;
+            if (i <= j) {
+                int temp = a.get(i);
+                a.set(i, a.get(j));
+                a.set(j, temp);
+                i++;
+                j--;
             }
         }
+        quikSort(a, left, j);
+        quikSort(a, i, right);
     }
     
     public static void swap(ArrayList a, int n, int m) {
