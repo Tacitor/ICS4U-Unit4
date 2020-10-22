@@ -8,19 +8,25 @@ package krampitzsortingefficiencies;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
+import javax.swing.JTextArea;
 
 /**
  *
  * @author Tacitor
  */
 public class SortingUI extends javax.swing.JFrame {
-    
+
     private static int numSort;
     private static int sortType;
     private static boolean ascendSort;
-    String adr10 = "src\\krampitzsortingefficiencies\\10nums.txt";
-    String adr10000 = "src\\krampitzsortingefficiencies\\10000nums.txt";
+    private final static String ADR10 = "src\\krampitzsortingefficiencies\\10nums.txt";
+    private final static String ADR10000 = "src\\krampitzsortingefficiencies\\10000nums.txt";
+    private static String adr;
+    private static int[] numsBubble;
+    private static int[] numsQuik;
+    private static int tempInt;
 
     /**
      * Creates new form SortingUI
@@ -62,7 +68,7 @@ public class SortingUI extends javax.swing.JFrame {
         sortedNumsLbl = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Sorting Comparison");
+        setTitle("Sorting Algorithms Benchmark");
         setAlwaysOnTop(true);
 
         jPanel1.setBackground(new java.awt.Color(214, 255, 220));
@@ -170,11 +176,12 @@ public class SortingUI extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(titleLbl)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(numSortLbl)
-                    .addComponent(num10Btn)
-                    .addComponent(num10000Btn)
-                    .addComponent(sortResultLbl))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(sortResultLbl, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(numSortLbl)
+                        .addComponent(num10Btn)
+                        .addComponent(num10000Btn)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -217,26 +224,40 @@ public class SortingUI extends javax.swing.JFrame {
     private void SortBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SortBtnActionPerformed
         // TODO add your handling code here:
         //get all the sorting type data
-        if (num10Btn.isSelected()) {
-            numSort = 10;
+        getInput();
+
+        //debug input
+        //System.out.println("Algorithm: " + sortType + "\nNumber: " + numSort + "\nAscending? : " + ascendSort);
+        //Initialize arrays
+        numsBubble = new int[numSort]; //set the length
+        numsBubble = loadFile(numsBubble, adr); //set the numbers to be sorted
+        numsQuik = new int[numSort];
+        numsQuik = loadFile(numsQuik, adr); //create a second one
+
+        //System.out.println(numsBubble); //debug array
+        //add the original unsorted arrays
+        displayNums(numsBubble, originalNumTxt);
+
+        //sort both arrays
+        bubbleSort(numsBubble);
+        quikSort(numsQuik, 0, numsQuik.length - 1);
+
+        //check for parity
+        if (Arrays.equals(numsBubble, numsQuik)) {
+
+            //add the sorted array to the display. even though they should be the same only add the one from the selected algorythm
+            if (sortType == 1) {
+                displayNums(numsBubble, sortedNumTxt);
+            } else if (sortType == 3) {
+                displayNums(numsQuik, sortedNumTxt);
+            }
+
         } else {
-            numSort = 10000;
+            sortResultTxt.setText("An array parity error has ocoured. Please contact tech support to resolve this issue.");
+            sortedNumTxt.setText("An array parity error has ocoured. Please contact tech support to resolve this issue.");
         }
 
-        if (ascendingRbtn.isSelected()) {
-            ascendSort = true;
-        } else {
-            ascendSort = false;
-        }
 
-        sortType = sortTypeBox.getSelectedIndex();
-
-        System.out.println("Algorithm: " + sortType + "\nNumber: " + numSort + "\nAscending? : " + ascendSort);
-        
-        ArrayList<Integer> tenNums = loadFile10(adr10);
-        System.out.println(tenNums);
-        System.out.println(tenNums.get(tenNums.size() - 1));
-        
     }//GEN-LAST:event_SortBtnActionPerformed
 
     /**
@@ -273,26 +294,123 @@ public class SortingUI extends javax.swing.JFrame {
             }
         });
     }
-    
-    protected static ArrayList<Integer> loadFile10(String adr) {
-        ArrayList<Integer> array = new ArrayList();
-        
+
+    public void displayNums(int[] a, JTextArea txt) {
+        txt.setText("loading...");
+        String txtStr = "";
+        for (int i = 0; i < a.length; i++) {
+            txtStr += i + ": " + a[i] + "\n";
+        }
+        txt.setText(txtStr);
+    }
+
+    public static void quikSort(int[] a, int left, int right) {
+        if (left >= right) {
+            return;
+        }
+        int pivot = a[(left + right) / 2];
+        int i = left;
+        int j = right;
+        while (i < j) {
+            while (a[i] < pivot) {
+                i++;
+            }
+            while (a[j] > pivot) {
+                j--;
+            }
+            if (i <= j) {
+                int temp = a[i];
+                a[i] = a[j];
+                a[j] = temp;
+                i++;
+                j--;
+            }
+        }
+        quikSort(a, left, j);
+        quikSort(a, i, right);
+    }
+
+    public static void insertionSort(ArrayList<Integer> a) {
+        //go through each index, first one is always considered sorted so skip it
+        for (int n = 1; n < a.size(); n++) {
+            int temp = a.get(n);
+            int j = n - 1;
+            while (j >= 0 && a.get(j) > temp) {
+                a.set(j + 1, a.get(j));
+                j = j - 1;
+            }
+            a.set(j + 1, temp);
+        }
+    }
+
+    public static void bubbleSort(int[] a) {
+        int bottom = a.length - 1; //the bottom is the last value/highest index
+        boolean swch = true; //have any values been swaped yet/are we done sorting?
+        while (swch) {
+            swch = false;
+            for (int j = 0; j < bottom; j++) {
+                if (a[j] > (a[j + 1])) { //check if it need to moded down
+                    //move it down
+                    tempInt = a[j + 1];
+                    a[j + 1] = a[j];
+                    a[j] = tempInt;
+                    //note a switch
+                    swch = true;
+                }
+            }
+            //we have now just added the next biggest value to the back, no need to check that anymore
+            bottom--;
+        }
+    }
+
+    /*
+    public static void selectionSort(ArrayList<Integer> a) {
+        //go through every index from right to left, ignor the last one as it will just end up as being the largest
+        for (int i = 0; i < a.size() - 1; i++) {
+            //find the smallest remaining one, start after what is already sorted (at the left/begining)
+            for (int j = i + 1; j < a.size(); j++) {
+                if (a.get(i) > a.get(j)) {
+                    swap(a, j, i);
+                }
+            }
+        }
+    }
+     */
+    public void getInput() {
+        if (num10Btn.isSelected()) {
+            numSort = 10;
+            adr = ADR10;
+        } else {
+            numSort = 10000;
+            adr = ADR10000;
+        }
+
+        if (ascendingRbtn.isSelected()) {
+            ascendSort = true;
+        } else {
+            ascendSort = false;
+        }
+
+        sortType = sortTypeBox.getSelectedIndex();
+    }
+
+    protected static int[] loadFile(int[] a, String adr) {
 
         try {
             File file = new File(adr);
             Scanner scanner = new Scanner(file);
 
             //load up
-            while (scanner.hasNextLine()) {
+            for (int i = 0; i < a.length; i++) {
 
-                array.add(Integer.parseInt(scanner.nextLine()));
+                a[i] = (Integer.parseInt(scanner.nextLine()));
             }
 
         } catch (FileNotFoundException e) {
             System.out.println("Error: " + e);
         }
 
-        return array;
+        return a;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
