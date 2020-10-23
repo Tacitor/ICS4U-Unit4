@@ -27,7 +27,9 @@ public class SortingUI extends javax.swing.JFrame {
     private static String adr;
     //Arrays
     private static int[] numsBubble;
-    private static int[] numsQuik;    
+    private static int[] numsQuik;  
+    private static int[] numsSelec;  
+    private static int[] numsInsert;  
     //Statastic and result based vars
     private static int tempInt;
     private static int timesLooped = 0;
@@ -249,6 +251,10 @@ public class SortingUI extends javax.swing.JFrame {
         loadFile(numsBubble, adr); //set the numbers to be sorted
         numsQuik = new int[numSort];
         loadFile(numsQuik, adr); //create a second one
+        numsSelec = new int[numSort];
+        loadFile(numsSelec, adr); //create a third one
+        numsInsert = new int[numSort];
+        loadFile(numsInsert, adr); //create a fourth one
 
         //System.out.println(numsBubble); //debug array
         
@@ -257,45 +263,78 @@ public class SortingUI extends javax.swing.JFrame {
         
         //pick a way to sort the arrays and then sort them          **Note on what looks like repeated code** Well it doesn't just look like it, it is buuut there is a good reason for me not using paralell structure here and that is because I need the times DIRECTLY before and after sorting, therefore no method calls.
         if (ascendSort) {
+            //reset times looped
+            timesLooped = 0;
+            timeStart = System.currentTimeMillis();
+            selectionSort(numsSelec);
+            timeFin = System.currentTimeMillis();
+            stats += "Selection Sort Ascending:" + LOOP_STRING + timesLooped + TIME_STRING + (timeFin - timeStart);
+            
             //sort all arrays and store preformace values
             timesLooped = 0; //reset times looped
             timeStart = System.currentTimeMillis(); //get the time before
             bubbleSort(numsBubble); //actully sort
             timeFin = System.currentTimeMillis(); //get the time after
-            stats += "Bubble Sort Ascending:" + LOOP_STRING + timesLooped + TIME_STRING + (timeFin - timeStart); //save the data for output later
+            stats += "\n\nBubble Sort Ascending:" + LOOP_STRING + timesLooped + TIME_STRING + (timeFin - timeStart); //save the data for output later
 
+            //reset times looped
+            timesLooped = 0;
+            timeStart = System.currentTimeMillis();
+            insertionSort(numsInsert);
+            timeFin = System.currentTimeMillis();
+            stats += "\n\nInsertion Sort Ascending:" + LOOP_STRING + timesLooped + TIME_STRING + (timeFin - timeStart);
+            
             //reset times looped
             timesLooped = 0;
             timeStart = System.currentTimeMillis();
             quikSort(numsQuik, 0, numsQuik.length - 1);
             timeFin = System.currentTimeMillis();
-            stats += "\nQuik Sort Ascending:" + LOOP_STRING + timesLooped + TIME_STRING + (timeFin - timeStart);
-        } else {
+            stats += "\n\nQuik Sort Ascending:" + LOOP_STRING + timesLooped + TIME_STRING + (timeFin - timeStart);
+            
+        } else {            
+            //reset times looped
+            timesLooped = 0;
+            timeStart = System.currentTimeMillis();
+            selectionSortDec(numsSelec);
+            timeFin = System.currentTimeMillis();
+            stats += "Selection Sort Ascending:" + LOOP_STRING + timesLooped + TIME_STRING + (timeFin - timeStart);
+            
             //sort all arrays and store preformace values
             timesLooped = 0; //reset times looped
             timeStart = System.currentTimeMillis();
             bubbleSortDec(numsBubble);
             timeFin = System.currentTimeMillis();
-            stats += "Bubble Sort Descending:" + LOOP_STRING + timesLooped + TIME_STRING + (timeFin - timeStart);
+            stats += "\n\nBubble Sort Descending:" + LOOP_STRING + timesLooped + TIME_STRING + (timeFin - timeStart);
+            
+            //reset times looped
+            timesLooped = 0;
+            timeStart = System.currentTimeMillis();
+            insertionSortDec(numsInsert);
+            timeFin = System.currentTimeMillis();
+            stats += "\n\nInsertion Sort Ascending:" + LOOP_STRING + timesLooped + TIME_STRING + (timeFin - timeStart);
             
             //reset times looped
             timesLooped = 0;
             timeStart = System.currentTimeMillis();
             quikSortDec(numsQuik, 0, numsQuik.length - 1);
             timeFin = System.currentTimeMillis();
-            stats += "\nQuik Sort Descending:" + LOOP_STRING + timesLooped + TIME_STRING + (timeFin - timeStart);
+            stats += "\n\nQuik Sort Descending:" + LOOP_STRING + timesLooped + TIME_STRING + (timeFin - timeStart);
         }
 
         //check for parity
-        if (!Arrays.equals(numsBubble, numsQuik)) {
-            errorMsg = "Global parity error";
-        } else {
+        if (Arrays.equals(numsBubble, numsQuik) && Arrays.equals(numsBubble, numsInsert) && Arrays.equals(numsBubble, numsSelec)) {
             errorMsg = "Global parity true";
+        } else {
+            errorMsg = "Global parity error";
         }
 
         //add the sorted array to the display. even though they should be the same only add the one from the selected algorythm
-        if (sortType == 1) {
+        if (sortType == 0) {
+            displayNums(numsSelec, sortedNumTxt, errorMsg);
+        } else if (sortType == 1) {
             displayNums(numsBubble, sortedNumTxt, errorMsg);
+        } else if (sortType == 2) {
+            displayNums(numsInsert, sortedNumTxt, errorMsg);
         } else if (sortType == 3) {
             displayNums(numsQuik, sortedNumTxt, errorMsg);
         }
@@ -381,9 +420,9 @@ public class SortingUI extends javax.swing.JFrame {
             }
             //swap them
             if (i <= j) {
-                int temp = a[i];
+                tempInt = a[i];
                 a[i] = a[j];
-                a[j] = temp;
+                a[j] = tempInt;
                 i++;
                 j--;
             }
@@ -416,9 +455,9 @@ public class SortingUI extends javax.swing.JFrame {
                 timesLooped++;
             }
             if (i <= j) {
-                int temp = a[i];
+                tempInt = a[i];
                 a[i] = a[j];
-                a[j] = temp;
+                a[j] = tempInt;
                 i++;
                 j--;
             }
@@ -426,20 +465,42 @@ public class SortingUI extends javax.swing.JFrame {
         quikSortDec(a, left, j);
         quikSortDec(a, i, right);
     }
-    /*
-    public static void insertionSort(ArrayList<Integer> a) {
+    
+    /**
+     * Sort an Array of integers in ascending order using Insertion Sort
+     * @param a 
+     */
+    public static void insertionSort(int[] a) {
         //go through each index, first one is always considered sorted so skip it
-        for (int n = 1; n < a.size(); n++) {
-            int temp = a.get(n);
-            int j = n - 1;
-            while (j >= 0 && a.get(j) > temp) {
-                a.set(j + 1, a.get(j));
-                j = j - 1;
+        for (int n = 1; n < a.length; n++) {
+            tempInt = a[n]; //temporarily stores the value
+            int j = n - 1; //the value before the current one
+            while (j >= 0 && a[j] > tempInt) { //loop until all the smaller ones that need to be inserted have been inserted
+                a[j + 1] = a[j]; //overwrite the value to shift evrything else over. The loop will keep doing this until the correct spot is found
+                j--;
+                timesLooped++; //count a loop
             }
-            a.set(j + 1, temp);
+            a[j + 1] = tempInt; //finally set the value to its correct spot
         }
     }
-    */
+    
+    /**
+     * Sort an Array of integers in ascending order using Insertion Sort
+     * @param a 
+     */
+    public static void insertionSortDec(int[] a) {
+        //go through each index, first one is always considered sorted so skip it
+        for (int n = 1; n < a.length; n++) {
+            tempInt = a[n];
+            int j = n - 1;
+            while (j >= 0 && a[j] < tempInt) { //DIFFERNCE! change the order of the comparison opperator so that now the big values get moved up
+                a[j + 1] = a[j];
+                j--;
+                timesLooped++;
+            }
+            a[j + 1] = tempInt;
+        }
+    }
     
     /**
      * Sort an Array of integers in ascending order using Bubble Sort
@@ -490,20 +551,44 @@ public class SortingUI extends javax.swing.JFrame {
             bottom--;
         }
     }
-
-    /*
-    public static void selectionSort(ArrayList<Integer> a) {
-        //go through every index from right to left, ignor the last one as it will just end up as being the largest
-        for (int i = 0; i < a.size() - 1; i++) {
+    
+    /**
+     * Sort an Array of integers in ascending order using Selection Sort
+     * @param a 
+     */
+    public static void selectionSort(int[] a) {
+        //go through every index from left to right.
+        for (int i = 0; i < a.length - 1; i++) {
             //find the smallest remaining one, start after what is already sorted (at the left/begining)
-            for (int j = i + 1; j < a.size(); j++) {
-                if (a.get(i) > a.get(j)) {
-                    swap(a, j, i);
+            for (int j = i + 1; j < a.length; j++) {
+                timesLooped++;
+                if (a[i] > a[j]) { //if its the smallest remaining one swap it
+                    tempInt = a[j];
+                    a[j] = a[i];
+                    a[i] = tempInt;
                 }
             }
         }
     }
+    
+    /**
+     * Sort an Array of integers in descending order using Selection Sort
+     * @param a 
      */
+    public static void selectionSortDec(int[] a) {
+        //go through every index from right to left, ignor the last one as it will just end up as being the largest
+        for (int i = 0; i < a.length - 1; i++) {
+            //find the smallest remaining one, start after what is already sorted (at the left/begining)
+            for (int j = i + 1; j < a.length; j++) {
+                timesLooped++;
+                if (a[i] < a[j]) { //DIFFERENCE! the opperator sign, I'm starting to notice a pattern ;)
+                    tempInt = a[j];
+                    a[j] = a[i];
+                    a[i] = tempInt;
+                }
+            }
+        }
+    }
     
     /**
      * Collect input from the GUI and assign according global variables to be used later
