@@ -7,7 +7,6 @@ package krampitzsortingefficiencies;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 import javax.swing.JTextArea;
@@ -17,23 +16,23 @@ import javax.swing.JTextArea;
  * @author Tacitor
  */
 public class SortingUI extends javax.swing.JFrame {
-
+    
+    //Input vars
     private static int numSort;
     private static int sortType;
     private static boolean ascendSort;
-
+    //string based File vars
     private final static String ADR10 = "src\\krampitzsortingefficiencies\\10nums.txt";
     private final static String ADR10000 = "src\\krampitzsortingefficiencies\\10000nums.txt";
     private static String adr;
-
+    //Arrays
     private static int[] numsBubble;
-    private static int[] numsQuik;
-
+    private static int[] numsQuik;    
+    //Statastic and result based vars
     private static int tempInt;
     private static int timesLooped = 0;
     private static long timeStart;
     private static long timeFin;
-    private static long timeDuration;
     private static String stats = "";
     private static String errorMsg;
     private static final String LOOP_STRING = "\nNumber of times a loop was executed: ";
@@ -244,48 +243,47 @@ public class SortingUI extends javax.swing.JFrame {
 
         //debug input
         //System.out.println("Algorithm: " + sortType + "\nNumber: " + numSort + "\nAscending? : " + ascendSort);
+        
         //Initialize arrays
         numsBubble = new int[numSort]; //set the length
-        numsBubble = loadFile(numsBubble, adr); //set the numbers to be sorted
+        loadFile(numsBubble, adr); //set the numbers to be sorted
         numsQuik = new int[numSort];
-        numsQuik = loadFile(numsQuik, adr); //create a second one
+        loadFile(numsQuik, adr); //create a second one
 
         //System.out.println(numsBubble); //debug array
+        
         //add the original unsorted arrays
         displayNums(numsBubble, originalNumTxt, "");
-
+        
+        //pick a way to sort the arrays and then sort them          **Note on what looks like repeated code** Well it doesn't just look like it, it is buuut there is a good reason for me not using paralell structure here and that is because I need the times DIRECTLY before and after sorting, therefore no method calls.
         if (ascendSort) {
-            //sort both arrays and store preformace values
+            //sort all arrays and store preformace values
             timesLooped = 0; //reset times looped
-            timeStart = System.currentTimeMillis();
-            bubbleSort(numsBubble);
-            timeFin = System.currentTimeMillis();
-            timeDuration = timeFin - timeStart;
-            stats += "Bubble Sort:" + LOOP_STRING + timesLooped + TIME_STRING + timeDuration;
+            timeStart = System.currentTimeMillis(); //get the time before
+            bubbleSort(numsBubble); //actully sort
+            timeFin = System.currentTimeMillis(); //get the time after
+            stats += "Bubble Sort Ascending:" + LOOP_STRING + timesLooped + TIME_STRING + (timeFin - timeStart); //save the data for output later
 
             //reset times looped
             timesLooped = 0;
             timeStart = System.currentTimeMillis();
             quikSort(numsQuik, 0, numsQuik.length - 1);
             timeFin = System.currentTimeMillis();
-            timeDuration = timeFin - timeStart;
-            stats += "\nQuik Sort:" + LOOP_STRING + timesLooped + TIME_STRING + timeDuration;
+            stats += "\nQuik Sort Ascending:" + LOOP_STRING + timesLooped + TIME_STRING + (timeFin - timeStart);
         } else {
-            //sort both arrays and store preformace values
+            //sort all arrays and store preformace values
             timesLooped = 0; //reset times looped
             timeStart = System.currentTimeMillis();
             bubbleSortDec(numsBubble);
             timeFin = System.currentTimeMillis();
-            timeDuration = timeFin - timeStart;
-            stats += "Bubble Sort:" + LOOP_STRING + timesLooped + TIME_STRING + timeDuration;
+            stats += "Bubble Sort Descending:" + LOOP_STRING + timesLooped + TIME_STRING + (timeFin - timeStart);
             
             //reset times looped
             timesLooped = 0;
             timeStart = System.currentTimeMillis();
             quikSortDec(numsQuik, 0, numsQuik.length - 1);
             timeFin = System.currentTimeMillis();
-            timeDuration = timeFin - timeStart;
-            stats += "\nQuik Sort:" + LOOP_STRING + timesLooped + TIME_STRING + timeDuration;
+            stats += "\nQuik Sort Descending:" + LOOP_STRING + timesLooped + TIME_STRING + (timeFin - timeStart);
         }
 
         //check for parity
@@ -341,32 +339,47 @@ public class SortingUI extends javax.swing.JFrame {
             }
         });
     }
-
+    
+    /**
+     * Update a JTextArea with an array of integers and a message at the end
+     * @param a the array of integers
+     * @param txt the JTextArea to update
+     * @param msg the message to append (can be blank/0 width space char but not null)
+     */
     public void displayNums(int[] a, JTextArea txt, String msg) {
-        txt.setText("loading...");
-        String txtStr = "";
-        for (int i = 0; i < a.length; i++) {
+        String txtStr = ""; //a string to hold all the ints
+        for (int i = 0; i < a.length; i++) { //loop thorugh and add all the ints to the string
             txtStr += i + ": " + a[i] + "\n";
         }
-        txt.setText(txtStr + msg);
+        txt.setText(txtStr + msg); //update the JTextAre and append a message
     }
-
+    
+    /**
+     * Sort an Array of integers in ascending order using Quik Sort
+     * @param a the array
+     * @param left the leftmost threshold to focus on
+     * @param right the rightmost threshold to focus on
+     */
     public static void quikSort(int[] a, int left, int right) {
+        //check base case is there even anything left unsorted?
         if (left >= right) {
-            return;
+            return; //if nothing left return
         }
-        int pivot = a[(left + right) / 2];
+        int pivot = a[(left + right) / 2]; //a pivot point in the middle index wise
         int i = left;
         int j = right;
-        while (i < j) {
+        while (i < j) { //loop so long as the left sweeper is still left of the right sweeper
+            //find an int on the left that should not be
             while (a[i] < pivot) {
                 i++;
                 timesLooped++;
             }
+            //find an int on the right that should not be
             while (a[j] > pivot) {
                 j--;
                 timesLooped++;
             }
+            //swap them
             if (i <= j) {
                 int temp = a[i];
                 a[i] = a[j];
@@ -375,10 +388,17 @@ public class SortingUI extends javax.swing.JFrame {
                 j--;
             }
         }
+        //go thorugh and pick a new pivot within each of the two new sections created
         quikSort(a, left, j);
         quikSort(a, i, right);
     }
     
+    /**
+     * Sort an Array of integers in descending order using Quik Sort
+     * @param a
+     * @param left
+     * @param right 
+     */
     public static void quikSortDec(int[] a, int left, int right) {
         if (left >= right) {
             return;
@@ -387,11 +407,11 @@ public class SortingUI extends javax.swing.JFrame {
         int i = left;
         int j = right;
         while (i < j) {
-            while (a[i] > pivot) {
+            while (a[i] > pivot) { //DIFFERENCE! Here the operator sign is fliped to change it to decending order
                 i++;
                 timesLooped++;
             }
-            while (a[j] < pivot) {
+            while (a[j] < pivot) { //DIFFERENCE! Here the operator sign is fliped to change it to decending order
                 j--;
                 timesLooped++;
             }
@@ -406,7 +426,7 @@ public class SortingUI extends javax.swing.JFrame {
         quikSortDec(a, left, j);
         quikSortDec(a, i, right);
     }
-
+    /*
     public static void insertionSort(ArrayList<Integer> a) {
         //go through each index, first one is always considered sorted so skip it
         for (int n = 1; n < a.size(); n++) {
@@ -419,15 +439,20 @@ public class SortingUI extends javax.swing.JFrame {
             a.set(j + 1, temp);
         }
     }
-
+    */
+    
+    /**
+     * Sort an Array of integers in ascending order using Bubble Sort
+     * @param a the array
+     */
     public static void bubbleSort(int[] a) {
         int bottom = a.length - 1; //the bottom is the last value/highest index
         boolean swch = true; //have any values been swaped yet/are we done sorting?
         while (swch) {
             swch = false;
-            for (int j = 0; j < bottom; j++) {
-                timesLooped++;
-                if (a[j] > (a[j + 1])) { //check if it need to moded down
+            for (int j = 0; j < bottom; j++) { //go through the array
+                timesLooped++; //the deepest part of the loop so count every time this executes
+                if (a[j] > (a[j + 1])) { //check if it need to moved down
                     //move it down
                     tempInt = a[j + 1];
                     a[j + 1] = a[j];
@@ -440,7 +465,11 @@ public class SortingUI extends javax.swing.JFrame {
             bottom--;
         }
     }
-
+    
+    /**
+     * Sort an Array of integers in descending order using Bubble Sort
+     * @param a 
+     */
     public static void bubbleSortDec(int[] a) {
         int bottom = a.length - 1; //the bottom is the last value/highest index
         boolean swch = true; //have any values been swaped yet/are we done sorting?
@@ -448,7 +477,7 @@ public class SortingUI extends javax.swing.JFrame {
             swch = false;
             for (int j = 0; j < bottom; j++) {
                 timesLooped++;
-                if (a[j] < (a[j + 1])) { //check if it need to moved down
+                if (a[j] < (a[j + 1])) { //check if it need to moved down DIFFERNCE! this time the comparion operator has switched, now checking for smaller values to move down
                     //move it down
                     tempInt = a[j + 1];
                     a[j + 1] = a[j];
@@ -475,7 +504,12 @@ public class SortingUI extends javax.swing.JFrame {
         }
     }
      */
+    
+    /**
+     * Collect input from the GUI and assign according global variables to be used later
+     */
     public void getInput() {
+        //check what set to sort
         if (num10Btn.isSelected()) {
             numSort = 10;
             adr = ADR10;
@@ -483,33 +517,31 @@ public class SortingUI extends javax.swing.JFrame {
             numSort = 10000;
             adr = ADR10000;
         }
-
-        if (ascendingRbtn.isSelected()) {
-            ascendSort = true;
-        } else {
-            ascendSort = false;
-        }
-
+        //check the way to sort them
+        ascendSort = ascendingRbtn.isSelected();
+        //and get the type of algorthym to use as the main one (display results to the user)
         sortType = sortTypeBox.getSelectedIndex();
     }
-
-    protected static int[] loadFile(int[] a, String adr) {
-
+    
+    /**
+     * Load a given data file of integers into a given array
+     * @param a the array to load
+     * @param adr the address of the data file
+     */
+    protected static void loadFile(int[] a, String adr) {
+        //try and find the file
         try {
-            File file = new File(adr);
-            Scanner scanner = new Scanner(file);
+            File file = new File(adr); //load the file
+            Scanner scanner = new Scanner(file); //give it a scanner
 
-            //load up
+            //load up the array with ints
             for (int i = 0; i < a.length; i++) {
-
                 a[i] = (Integer.parseInt(scanner.nextLine()));
             }
 
-        } catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) { //catch if there is not file to be found
             System.out.println("Error: " + e);
         }
-
-        return a;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
