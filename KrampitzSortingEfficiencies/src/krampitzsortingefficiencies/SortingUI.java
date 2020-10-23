@@ -1,7 +1,7 @@
 /*
  * Lukas Krampitz
  * Oct 22, 2020
- * A program which allows the user to compare the efficiency to two different sorting algorithms
+ * A program which allows the user to compare the efficiency to four different sorting algorithms
  */
 package krampitzsortingefficiencies;
 
