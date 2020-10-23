@@ -81,7 +81,6 @@ public class SortingUI extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Sorting Algorithms Benchmark");
-        setAlwaysOnTop(true);
 
         jPanel1.setBackground(new java.awt.Color(214, 255, 220));
         jPanel1.setForeground(new java.awt.Color(254, 255, 176));
@@ -297,7 +296,7 @@ public class SortingUI extends javax.swing.JFrame {
             timeStart = System.currentTimeMillis();
             selectionSortDec(numsSelec);
             timeFin = System.currentTimeMillis();
-            stats += "Selection Sort Ascending:" + LOOP_STRING + timesLooped + TIME_STRING + (timeFin - timeStart);
+            stats += "Selection Sort Descending:" + LOOP_STRING + timesLooped + TIME_STRING + (timeFin - timeStart);
             
             //sort all arrays and store preformace values
             timesLooped = 0; //reset times looped
@@ -311,7 +310,7 @@ public class SortingUI extends javax.swing.JFrame {
             timeStart = System.currentTimeMillis();
             insertionSortDec(numsInsert);
             timeFin = System.currentTimeMillis();
-            stats += "\n\nInsertion Sort Ascending:" + LOOP_STRING + timesLooped + TIME_STRING + (timeFin - timeStart);
+            stats += "\n\nInsertion Sort Descending:" + LOOP_STRING + timesLooped + TIME_STRING + (timeFin - timeStart);
             
             //reset times looped
             timesLooped = 0;
